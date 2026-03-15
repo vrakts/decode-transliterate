@@ -33,7 +33,7 @@ python main.py
 
 ## Run CLI
 
-python main.py --cli "&#1055;&#1088;&#1080;&#1074;&#1077;&#1090;"
+python main.py --cli "&#1055&#1088&#1080&#1074&#1077&#1090"
 
 ---
 
