@@ -1,10 +1,10 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 
 from tkinterdnd2 import DND_TEXT
 
 from .processor import process_text
-from .clipboard import get_clipboard
+from .clipboard import get_clipboard, ClipboardWatcher
 from .transliterator import SUPPORTED_LANGS
 
 
@@ -22,7 +22,16 @@ class App:
 
         self.build_ui()
 
+        self.bind_shortcuts()
+
+        self.clipboard_watcher = ClipboardWatcher(
+            root,
+            self.clipboard_changed
+        )
+
     def build_ui(self):
+
+        self.build_menu()
 
         frame = ttk.Frame(self.root, padding=10)
         frame.grid()
@@ -69,7 +78,61 @@ class App:
             command=self.copy
         ).grid(row=0, column=1)
 
+        ttk.Button(
+            btn_frame,
+            text="Clear",
+            command=self.clear_fields
+        ).grid(row=0, column=2)
+
         self.input_var.trace_add("write", self.update)
+
+    def build_menu(self):
+
+        menu = tk.Menu(self.root)
+
+        help_menu = tk.Menu(menu, tearoff=0)
+
+        help_menu.add_command(
+            label="About",
+            command=self.show_about
+        )
+
+        help_menu.add_separator()
+
+        help_menu.add_command(
+            label="Quit",
+            command=self.root.quit
+        )
+
+        menu.add_cascade(label="Help", menu=help_menu)
+
+        self.root.config(menu=menu)
+
+    def bind_shortcuts(self):
+
+        self.root.bind("<Escape>", lambda e: self.clear_fields())
+
+        self.root.bind("<Control-q>", lambda e: self.root.quit())
+
+    def show_about(self):
+
+        messagebox.showinfo(
+            "About",
+            "Decode Transliterate\n\n"
+            "Version: 1.2.0\n\n"
+            "Features:\n"
+            "• HTML entity decoding\n"
+            "• Multi-language transliteration\n"
+            "• Drag & drop text\n"
+            "• Clipboard watcher\n"
+            "• CLI support\n\n"
+            "GUI usage:\n"
+            "• Enter text in the input field\n"
+            "• Select a language from the dropdown\n"
+            "• See the transliterated result in the output field\n\n"
+            "Command line usage:\n"
+            "• Run with --cli \"text\" to process text directly from the command line\n"
+        )
 
     def change_lang(self, event):
 
@@ -97,6 +160,10 @@ class App:
 
         self.input_var.set(text)
 
+    def clipboard_changed(self, text):
+
+        self.input_var.set(text)
+
     def copy(self):
 
         text = self.result.get("1.0", tk.END).strip()
@@ -104,6 +171,12 @@ class App:
         self.root.clipboard_clear()
 
         self.root.clipboard_append(text)
+
+    def clear_fields(self):
+
+        self.input_var.set("")
+
+        self.result.delete("1.0", tk.END)
 
     def drop(self, event):
 

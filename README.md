@@ -4,7 +4,7 @@ Initially created for a custom-made ERP system that failed to correctly register
 
 Small Python tool that:
 
-• Decodes HTML entities
+• Decodes HTML entities  
 • Transliterates text to Latin
 
 ## New in v1.1.0
@@ -12,6 +12,12 @@ Small Python tool that:
 • Drag & Drop text  
 • Clipboard paste button  
 • Multi language transliteration  
+
+## New in v1.2.0
+
+• Clipboard monitoring for auto paste procedures  
+• Shortcuts (ESC to clear text fields, CTRL+Q to exit)  
+• Menu added for about and exit  
 
 ---
 
