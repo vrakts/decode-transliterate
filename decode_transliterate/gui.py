@@ -13,21 +13,24 @@ class App:
     def __init__(self, root):
 
         self.root = root
-
         root.title("Decode & Transliterate")
 
         self.input_var = tk.StringVar()
 
-        self.lang_var = tk.StringVar(value="ru")
+        # GUI language selection (name, not code)
+        self.lang_var = tk.StringVar(value="Russian")
 
         self.build_ui()
 
         self.bind_shortcuts()
 
+        # start clipboard watcher
         self.clipboard_watcher = ClipboardWatcher(
             root,
             self.clipboard_changed
         )
+
+    # ---------------- UI ---------------- #
 
     def build_ui(self):
 
@@ -36,33 +39,37 @@ class App:
         frame = ttk.Frame(self.root, padding=10)
         frame.grid()
 
+        # INPUT
         ttk.Label(frame, text="Input").grid(row=0, column=0)
 
         self.entry = ttk.Entry(frame, width=60, textvariable=self.input_var)
         self.entry.grid(row=0, column=1)
 
+        # drag & drop
         self.entry.drop_target_register(DND_TEXT)
         self.entry.dnd_bind("<<Drop>>", self.drop)
 
+        # LANGUAGE SELECT
         ttk.Label(frame, text="Language").grid(row=1, column=0)
 
-        lang_menu = ttk.Combobox(
+        self.lang_menu = ttk.Combobox(
             frame,
+            textvariable=self.lang_var,
             values=list(SUPPORTED_LANGS.keys()),
             state="readonly"
         )
 
-        lang_menu.set("Russian")
+        self.lang_menu.grid(row=1, column=1)
 
-        lang_menu.grid(row=1, column=1)
+        self.lang_menu.bind("<<ComboboxSelected>>", self.change_lang)
 
-        lang_menu.bind("<<ComboboxSelected>>", self.change_lang)
-
+        # RESULT
         ttk.Label(frame, text="Result").grid(row=2, column=0)
 
         self.result = tk.Text(frame, height=3, width=60)
         self.result.grid(row=2, column=1)
 
+        # BUTTONS
         btn_frame = ttk.Frame(frame)
         btn_frame.grid(row=3, column=1)
 
@@ -84,7 +91,10 @@ class App:
             command=self.clear_fields
         ).grid(row=0, column=2)
 
+        # auto update when input changes
         self.input_var.trace_add("write", self.update)
+
+    # ---------------- MENU ---------------- #
 
     def build_menu(self):
 
@@ -108,11 +118,15 @@ class App:
 
         self.root.config(menu=menu)
 
+    # ---------------- SHORTCUTS ---------------- #
+
     def bind_shortcuts(self):
 
         self.root.bind("<Escape>", lambda e: self.clear_fields())
 
         self.root.bind("<Control-q>", lambda e: self.root.quit())
+
+    # ---------------- ABOUT ---------------- #
 
     def show_about(self):
 
@@ -134,25 +148,30 @@ class App:
             "• Run with --cli \"text\" to process text directly from the command line\n"
         )
 
+    # ---------------- LANGUAGE ---------------- #
+
     def change_lang(self, event):
 
-        selected = event.widget.get()
-
-        self.lang_var.set(SUPPORTED_LANGS[selected])
-
         self.update()
+
+    # ---------------- UPDATE ---------------- #
 
     def update(self, *_):
 
         text = self.input_var.get()
 
-        lang = self.lang_var.get()
+        # convert language name -> code
+        lang_name = self.lang_var.get()
 
-        result = process_text(text, lang)
+        lang_code = SUPPORTED_LANGS.get(lang_name, "ru")
+
+        result = process_text(text, lang_code)
 
         self.result.delete("1.0", tk.END)
 
         self.result.insert(tk.END, result)
+
+    # ---------------- CLIPBOARD ---------------- #
 
     def paste_clipboard(self):
 
@@ -164,6 +183,8 @@ class App:
 
         self.input_var.set(text)
 
+    # ---------------- COPY RESULT ---------------- #
+
     def copy(self):
 
         text = self.result.get("1.0", tk.END).strip()
@@ -172,11 +193,15 @@ class App:
 
         self.root.clipboard_append(text)
 
+    # ---------------- CLEAR ---------------- #
+
     def clear_fields(self):
 
         self.input_var.set("")
 
         self.result.delete("1.0", tk.END)
+
+    # ---------------- DRAG DROP ---------------- #
 
     def drop(self, event):
 
