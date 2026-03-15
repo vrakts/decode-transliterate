@@ -1,12 +1,14 @@
 from .decoder import decode_html_entities
-from .transliterator import transliterate_to_latin
+from .transliterator import transliterate_text
 
-def process_text(text: str) -> str:
+
+def process_text(text: str, lang: str) -> str:
 
     if not text:
         return ""
 
     decoded = decode_html_entities(text)
-    transliterated = transliterate_to_latin(decoded)
 
-    return transliterated
+    result = transliterate_text(decoded, lang)
+
+    return result

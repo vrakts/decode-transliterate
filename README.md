@@ -2,17 +2,38 @@
 
 Initially created for a custom-made ERP system that failed to correctly register the orders made from the website when customers used Google's Translate for the whole page to Russian
 
-A small utility that:
+Small Python tool that:
 
-- decodes HTML entities
-- transliterates Cyrillic to Latin
-- provides GUI usage
-- copy to clipboard function for easy paste
+• Decodes HTML entities
+• Transliterates text to Latin
+
+## New in v1.1.0
+
+• Drag & Drop text  
+• Clipboard paste button  
+• Multi language transliteration  
+
+---
+
+## Install
+
+pip install -r requirements.txt
+
+---
 
 ## Run GUI
 
 python main.py
 
+---
+
+## Build EXE
+
+pip install pyinstaller
+pyinstaller --onefile --windowed main.py
+
+---
+
 ## Test cyrillic word
 
-&#1055;&#1088;&#1080;&#1074;&#1077;&#1090;
+&#1055&#1088&#1080&#1074&#1077&#1090
